@@ -33,4 +33,14 @@ jobs:
       - name: Run tests
         env:
           PYTHONPATH: ${{ github.workspace }}
-        run: python -m pytest -q
+        run: |
+          set -e
+          python -m pytest -q || exit_code=$?
+          if [ -n "${exit_code:-}" ]; then
+            if [ "$exit_code" = "5" ]; then
+              echo "No tests found; skipping test step."
+              exit 0
+            else
+              exit "$exit_code"
+            fi
+          fi
